@@ -4,16 +4,13 @@ import java.util.*;
 
 public class _1235_max_profit_job_schedule {
     List<int[]> jobs;
-    int[][] memo;
+    int[] memo;
     // stores max profit given there's enough time to schedule ith item
-    // memo[i][0]: skipping ith job,
-    // memo[i][1]: schedule ith job
 
     public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
         jobs = new ArrayList<>();
-        memo = new int[startTime.length][2];
-        for(int i = 0; i < memo.length; i++)
-            Arrays.fill(memo[i], -1);
+        memo = new int[startTime.length];
+        Arrays.fill(memo, -1);
 
         for(int i = 0; i < startTime.length; i++) {
             jobs.add(new int[]{startTime[i], endTime[i], profit[i]});
@@ -28,26 +25,16 @@ public class _1235_max_profit_job_schedule {
         if(idx == jobs.size()) return 0;
         if(time > jobs.get(idx)[0]) return jobSchedulingHelper(time, idx+1);
 
-        int res = 0;
-        if(memo[idx][0] != -1) {
-            res = memo[idx][0];
-        } else {
-            res = jobSchedulingHelper(time, idx+1);
-            memo[idx][0] = res;
+        if(memo[idx] != -1) {
+            return memo[idx];
         }
 
-        int res2= 0;
-        if(memo[idx][1] != -1) {
-            res2 = memo[idx][1];
-        } else {
-            res2 = jobs.get(idx)[2] + jobSchedulingHelper(jobs.get(idx)[1], idx+1);
-            memo[idx][1] = res2;
-        }
+        int skip = jobSchedulingHelper(time, idx+1);
+        int schedule = jobs.get(idx)[2] + jobSchedulingHelper(jobs.get(idx)[1], idx+1);
 
-        if(jobs.get(idx)[0] >= time) {
-            return Math.max(res, res2);
-        } else
-            return res;
+        int res = Math.max(skip, schedule);
+        memo[idx] = res;
+        return res;
     }
 
     public static void main(String[] args) {
