@@ -2,7 +2,7 @@ package memoization;
 
 import java.util.*;
 
-public class _140_word_break {
+public class _140_word_break_ii {
     Set<String> set;
     List<String>[] dp; //-1,uncalcuted,  0: false,  1: true
 
@@ -32,6 +32,6 @@ public class _140_word_break {
     }
 
     public static void main(String[] args) {
-        new _140_word_break().wordBreak("catsanddog", Arrays.asList("cat","cats","and","sand","dog"));
+        new _140_word_break_ii().wordBreak("catsanddog", Arrays.asList("cat","cats","and","sand","dog"));
     }
 }
