@@ -2,7 +2,7 @@ package binaryTree;
 
 import pojos.TreeNode;
 
-public class _270_cloest_binary_search_tree {
+public class _270_closest_binary_search_tree {
     int res = 0;
     double minDiff = Integer.MAX_VALUE;
 

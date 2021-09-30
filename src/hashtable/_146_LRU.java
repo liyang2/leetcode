@@ -2,73 +2,81 @@ package hashtable;
 
 import java.util.*;
 
-public class _146_LRU {
+public class _146_LRU {}
 
-    static class Node{
-        int key,val;
-        Node prev,next;
+
+
+class LRUCache {
+    static class Node {
+        int key;
+        int val;
+        Node prev;
+        Node next;
         public Node(int key, int val) {
             this.key = key;
             this.val = val;
         }
     }
+    int capacity;
     Node head;
     Node tail;
-    int capacity;
     Map<Integer, Node> map;
 
-    public _146_LRU(int capacity) {
-        head = new Node(0,0);
-        tail = new Node(0,0);
-        head.next = tail;
-        tail.next = head;
-        map = new HashMap<>();
+
+    public LRUCache(int capacity) {
         this.capacity = capacity;
+        head = new Node(-1, -1);
+        tail = new Node(-1, -1);
+        head.next = tail;
+        tail.prev = head;
+        map = new HashMap<>();
     }
 
     public int get(int key) {
         if(map.containsKey(key)) {
             Node node = map.get(key);
-            remove(node);
-            insertAtFront(node);
+            moveToFront(node);
             return node.val;
         }
         return -1;
     }
 
-    private void remove(Node node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private void insertAtFront(Node node) {
-        node.prev = head;
+    private void moveToFront(Node node) {
+        deleteNode(node);
         node.next = head.next;
+        node.prev = head;
         head.next = node;
         node.next.prev = node;
     }
 
-    public void put(int key, int value) {
-        Node node = null;
-        if(map.containsKey(key)) {
-            node = map.get(key);
-            node.val = value;
-            remove(node);
-        } else {
-            node = new Node(key, value);
-        }
-        map.put(key, node);
-        insertAtFront(node);
+    private void deleteNode(Node node) {
+        if(node.prev != null)
+            node.prev.next = node.next;
+        if(node.next != null)
+            node.next.prev = node.prev;
+    }
 
-        if(map.size() > capacity) {
-            Node toRemove = tail.prev;
-            remove(toRemove);
-            map.remove(toRemove.key);
+    public void put(int key, int value) {
+        if(map.containsKey(key)) {
+            Node node = map.get(key);
+            moveToFront(node);
+            node.val = value;
+        } else {
+            Node node = new Node(key, value);
+            moveToFront(node);
+            map.put(key, node);
+
+            if(map.size() > capacity) {
+                Node toDel = tail.prev;
+                deleteNode(toDel);
+                map.remove(toDel.key);
+            }
         }
     }
 
+
     public static void main(String[] args) {
-        _146_LRU lru = new _146_LRU(2);
+        LRUCache lru = new LRUCache(2);
         lru.put(1,0);
         lru.put(2,2);
         lru.get(1);

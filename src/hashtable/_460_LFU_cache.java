@@ -1,99 +1,111 @@
 package hashtable;
 import java.util.*;
-// 太难不做
-// https://leetcode.com/problems/lfu-cache/discuss/94547/Java-O(1)-Solution-Using-Two-HashMap-and-One-DoubleLinkedList
 public class _460_LFU_cache {
-    class Node {
-        int key, val, cnt;
-        Node prev, next;
-        Node(int key, int val) {
-            this.key = key;
-            this.val = val;
-            cnt = 1;
+}
+
+class LFUCache {
+    int capacity;
+    Map<Integer, Node> map;
+    Map<Integer, DLinkedList> useMap;
+    int lowestUse = 0;
+
+    public LFUCache(int capacity) {
+        this.capacity = capacity;
+        map = new HashMap<>();
+        useMap = new HashMap<>();
+    }
+
+    private void updateUseMap(Node node) {
+        int oldUse = node.use;
+        int newUse = ++node.use;
+        useMap.get(oldUse).remove(node);
+        if(useMap.get(lowestUse).isEmpty()) {
+            lowestUse++;
+        }
+        useMap.computeIfAbsent(newUse, o-> new DLinkedList()).add(node);
+    }
+
+    public int get(int key) {
+        if(map.containsKey(key)) {
+            Node node = map.get(key);
+            updateUseMap(node);
+            return node.val;
+        }
+        return -1;
+    }
+
+    public void put(int key, int value) {
+        if(capacity == 0) return;
+
+        if(map.containsKey(key)) {
+            Node node = map.get(key);
+            node.val = value;
+            updateUseMap(node);
+        } else {
+            if(map.size() == capacity) {
+                Node toDel = useMap.get(lowestUse).removeLast();
+                map.remove(toDel.key);
+            }
+
+            Node node = new Node(key, value);
+            map.put(key, node);
+            useMap.computeIfAbsent(1, o->new DLinkedList()).add(node);
+            lowestUse = 1;
         }
     }
 
-    class DLList {
-        Node head, tail;
-        int size;
-        DLList() {
-            head = new Node(0, 0);
-            tail = new Node(0, 0);
+    static class Node {
+        int use = 1;
+        int key;
+        int val;
+        Node prev;
+        Node next;
+        public Node(int key, int val) {
+            this.key = key;
+            this.val = val;
+        }
+    }
+
+    static class DLinkedList {
+        Node head;
+        Node tail;
+
+        public DLinkedList() {
+            head = new Node(-1, -1);
+            tail = new Node(-1, -1);
             head.next = tail;
             tail.prev = head;
         }
 
-        void add(Node node) {
-            head.next.prev = node;
+        public boolean isEmpty() {
+            return head.next == tail;
+        }
+
+        public Node removeLast() {
+            Node toDel = tail.prev;
+            remove(toDel);
+            return toDel;
+        }
+
+        public void add(Node node) {
+            remove(node);
             node.next = head.next;
+            head.next.prev = node;
             node.prev = head;
             head.next = node;
-            size++;
         }
 
-        void remove(Node node) {
-            node.prev.next = node.next;
-            node.next.prev = node.prev;
-            size--;
-        }
-
-        Node removeLast() {
-            if (size > 0) {
-                Node node = tail.prev;
-                remove(node);
-                return node;
+        public void remove(Node node) {
+            if(node.next != null) {
+                node.next.prev = node.prev;
             }
-            else return null;
-        }
-    }
-
-    int capacity, size, min;
-    Map<Integer, Node> nodeMap;
-    Map<Integer, DLList> countMap;
-    public _460_LFU_cache(int capacity) {
-        this.capacity = capacity;
-        nodeMap = new HashMap<>();
-        countMap = new HashMap<>();
-    }
-
-    public int get(int key) {
-        Node node = nodeMap.get(key);
-        if (node == null) return -1;
-        update(node);
-        return node.val;
-    }
-
-    public void put(int key, int value) {
-        if (capacity == 0) return;
-        Node node;
-        if (nodeMap.containsKey(key)) {
-            node = nodeMap.get(key);
-            node.val = value;
-            update(node);
-        }
-        else {
-            node = new Node(key, value);
-            nodeMap.put(key, node);
-            if (size == capacity) {
-                DLList lastList = countMap.get(min);
-                nodeMap.remove(lastList.removeLast().key);
-                size--;
+            if(node.prev != null) {
+                node.prev.next = node.next;
             }
-            size++;
-            min = 1;
-            DLList newList = countMap.getOrDefault(node.cnt, new DLList());
-            newList.add(node);
-            countMap.put(node.cnt, newList);
         }
-    }
-
-    private void update(Node node) {
-        DLList oldList = countMap.get(node.cnt);
-        oldList.remove(node);
-        if (node.cnt == min && oldList.size == 0) min++;
-        node.cnt++;
-        DLList newList = countMap.getOrDefault(node.cnt, new DLList());
-        newList.add(node);
-        countMap.put(node.cnt, newList);
     }
 }
+
+
+
+
