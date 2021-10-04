@@ -1,4 +1,4 @@
-package hashtable;
+package dataStructure;
 
 import java.util.*;
 

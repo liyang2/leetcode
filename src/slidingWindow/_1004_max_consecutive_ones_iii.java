@@ -1,6 +1,6 @@
 package slidingWindow;
 
-public class _1004_max_consecutive_ones {
+public class _1004_max_consecutive_ones_iii {
     public int longestOnes(int[] nums, int k) {
         int res = 0;
         int l = 0, r = 0;

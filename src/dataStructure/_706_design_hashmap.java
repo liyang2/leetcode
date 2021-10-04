@@ -1,4 +1,4 @@
-package hashtable;
+package dataStructure;
 import java.util.*;
 public class _706_design_hashmap {
     static class Pair {
