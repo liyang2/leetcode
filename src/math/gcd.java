@@ -8,6 +8,6 @@ public class gcd {
     }
 
     public static void main(String[] args) {
-        System.out.println(new gcd().gcd(3, 5));
+        System.out.println(new gcd().gcd(3, 1));
     }
 }
