@@ -1,5 +1,6 @@
 package trie;
 import java.util.*;
+
 public class _212_word_search_ii {
 
     public static void main(String[] args) {
@@ -7,112 +8,52 @@ public class _212_word_search_ii {
         String[] words = {"oath","pea","eat","rain"};
         new _212_word_search_ii().findWords(board, words);
     }
-
-    boolean[][] used;
-    char[][] board;
-    int[][] dirs = {{0, 1}, {0, -1}, {1,0}, {-1,0}};
-    int m,n;
-    List<String> res;
-    Trie trie = new Trie();
+    static class TrieNode {
+        Map<Character, TrieNode> children = new HashMap<Character, TrieNode>();
+        String word = null;
+        public TrieNode() {}
+    }
+    List<String> res = new ArrayList<>();
+    TrieNode root = new TrieNode();
 
     public List<String> findWords(char[][] board, String[] words) {
-        res = new ArrayList<>();
-        for(String word: words) trie.insert(word);
-        this.board = board;
-        m = board.length;
-        n = board[0].length;
-        used = new boolean[m][n];
-
-        for(int i = 0; i < m; i++) {
-            for(int j = 0; j < n; j++) {
-                dfs(i, j, new StringBuilder());
+        for(String word : words) {
+            TrieNode node = root;
+            for(char ch : word.toCharArray()) {
+                if(!node.children.containsKey(ch)) {
+                    node.children.put(ch, new TrieNode());
+                }
+                node = node.children.get(ch);
+            }
+            node.word = word;
+        }
+        for(int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board[0].length; j++) {
+                if(root.children.containsKey(board[i][j])) {
+                    dfs(board, i, j, root);
+                }
             }
         }
         return res;
     }
 
-
-    // ask yourself this question:
-    // at the begging of the method, is board[i][j] counted already, answer is no for this one
-    void dfs(int i, int j, StringBuilder sb) {
-        if(trie.search(sb.toString())) {
-            res.add(sb.toString());
-            return;
+    int[][] dirs = {{1, 0}, {-1,0}, {0,1}, {0,-1}};
+    void dfs(char[][] board, int i, int j, TrieNode parent) {
+        TrieNode cur = parent.children.get(board[i][j]);
+        if(cur.word != null) {
+            res.add(cur.word);
+            cur.word = null;
         }
-
-        if(i < 0 || j < 0 || i >= m || j >= n || used[i][j] ||
-                !trie.startsWith(sb.toString())) return;
-
-        used[i][j] = true;
-        sb.append(board[i][j]);
-
-        for(int[] dir: dirs) {
-            int newI = i + dir[0];
-            int newJ = j + dir[1];
-            dfs(newI, newJ, sb);
-        }
-
-        used[i][j] = false;
-        sb.deleteCharAt(sb.length()-1);
-    }
-
-    static class Node {
-        char ch;
-        boolean isLeaf = false;
-        Map<Character, Node> children;
-
-        public Node(char ch) {
-            this.ch = ch;
-            children = new HashMap<>();
-        }
-    }
-
-    static class Trie {
-        Node root;
-        /** Initialize your data structure here. */
-        public Trie() {
-            root = new Node((char)0);
-        }
-
-        /** Inserts a word into the trie. */
-        public void insert(String word) {
-            Node head = root;
-            for(char ch : word.toCharArray()) {
-                if(head.children.containsKey(ch)) {
-                    head = head.children.get(ch);
-                } else {
-                    Node newNode = new Node(ch);
-                    head.children.put(ch, newNode);
-                    head = newNode;
-                }
+        char copy = board[i][j];
+        board[i][j] = '#';
+        for(int[] dir : dirs) {
+            int nextI = i + dir[0];
+            int nextJ = j + dir[1];
+            if(nextI >= 0 && nextI < board.length && nextJ >= 0 && nextJ < board[0].length
+                    && board[nextI][nextJ] != '#' && cur.children.containsKey(board[nextI][nextJ])) {
+                dfs(board, nextI, nextJ, cur);
             }
-            head.isLeaf = true;
         }
-
-        /** Returns if the word is in the trie. */
-        public boolean search(String word) {
-            Node head = root;
-            for(char ch : word.toCharArray()) {
-                if(head.children.containsKey(ch)) {
-                    head = head.children.get(ch);
-                } else {
-                    return false;
-                }
-            }
-            return head.isLeaf;
-        }
-
-        /** Returns if there is any word in the trie that starts with the given prefix. */
-        public boolean startsWith(String prefix) {
-            Node head = root;
-            for(char ch : prefix.toCharArray()) {
-                if(head.children.containsKey(ch)) {
-                    head = head.children.get(ch);
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        }
+        board[i][j] = copy;
     }
 }
