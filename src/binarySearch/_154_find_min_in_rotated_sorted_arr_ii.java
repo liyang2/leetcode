@@ -1,6 +1,6 @@
 package binarySearch;
 
-public class _153_find_min_in_rotated_sorted_arr {
+public class _154_find_min_in_rotated_sorted_arr_ii {
     public int findMin(int[] nums) {
         int left = 0;
         int right = nums.length - 1;
@@ -8,8 +8,11 @@ public class _153_find_min_in_rotated_sorted_arr {
             int mid = left + (right - left) / 2;
             if (nums[mid] < nums[right]) {
                 right = mid;
-            } else // if(nums[mid] > nums[right]) {
+            } else if(nums[mid] > nums[right]) {
                 left = mid + 1;
+            } else {
+                right--;
+            }
         }
         return Math.min(nums[left], nums[right]);
     }

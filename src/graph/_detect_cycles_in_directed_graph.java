@@ -1,31 +1,34 @@
 package graph;
 import java.util.*;
 public class _detect_cycles_in_directed_graph {
-    ArrayList<ArrayList<Integer>> adj;
+    enum State { WHITE, GREY, BLACK}
     public boolean isCyclic(int V, ArrayList<ArrayList<Integer>> adj) {
-        this.adj = adj;
-
         // code here
-        for(int i = 0; i < V; i++) {
-            if(hasCycle(i, new HashSet<>())) {
+        int n = adj.size();
+        State[] states = new State[n];
+        Arrays.fill(states, State.WHITE);
+        for (int i = 0; i < n; i++) {
+            if (isCyclicHelper(i, adj, states)) {
                 return true;
             }
         }
         return false;
     }
-    Set<Integer> noCycles = new HashSet<>();
 
-    boolean hasCycle(int i, Set<Integer> path) {
-        if(noCycles.contains(i)) return false;
-        path.add(i);
-        for(int neighbor: adj.get(i)) {
-            if(path.contains(neighbor)) return true;
-            if(hasCycle(neighbor, path)) {
+    private boolean isCyclicHelper(int node, ArrayList<ArrayList<Integer>> adj, State[] states) {
+        if (states[node] == State.GREY) {
+            return true;
+        } else if (states[node] == State.BLACK) {
+            return false;
+        }
+        states[node] = State.GREY;
+        for (int next : adj.get(node)) {
+            if (isCyclicHelper(next, adj, states)) {
                 return true;
             }
         }
-        path.remove(i);
-        noCycles.add(i);
+        states[node] = State.BLACK;
         return false;
     }
 }
+

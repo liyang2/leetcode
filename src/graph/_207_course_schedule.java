@@ -40,4 +40,8 @@ public class _207_course_schedule {
         path[root] = false; // backtrack
         return false;
     }
+
+    public static void main(String[] args) {
+        System.out.println(new _207_course_schedule().canFinish(100, new int[0][]));
+    }
 }

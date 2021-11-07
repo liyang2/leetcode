@@ -4,20 +4,26 @@ package backtrack;
 
 public class _294_flip_game_ii {
     public boolean canWin(String s) {
-        if (s == null || s.length() < 2) {
-            return false;
-        }
+        // write your code here
+        char[] chars = s.toCharArray();
+        return canWinRecur(chars);
+    }
 
-        for (int i = 0; i < s.length() - 1; i++) {
-            if (s.startsWith("++", i)) {
-                String t = s.substring(0, i) + "--" + s.substring(i + 2);
-
-                if (!canWin(t)) {
+    private boolean canWinRecur(char[] chars) {
+        for (int i = 0; i < chars.length - 1; i++) {
+            if (chars[i] == '+' && chars[i + 1] == '+') {
+                chars[i] = chars[i + 1] = '-';
+                boolean otherCanWin = canWinRecur(chars);
+                chars[i] = chars[i + 1] = '+';
+                if (!otherCanWin) {
                     return true;
                 }
             }
         }
-
         return false;
+    }
+
+    public static void main(String[] args) {
+        new _294_flip_game_ii().canWin("++++");
     }
 }

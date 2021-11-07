@@ -4,36 +4,48 @@ import java.util.*;
 
 public class _146_LRU {}
 
-
-
 class LRUCache {
-    static class Node {
-        int key;
-        int val;
-        Node prev;
-        Node next;
-        public Node(int key, int val) {
-            this.key = key;
-            this.val = val;
-        }
-    }
     int capacity;
-    Node head;
-    Node tail;
-    Map<Integer, Node> map;
-
-
-    public LRUCache(int capacity) {
+    Map<Integer, Node> map = new HashMap<>();
+    Node head = new Node();
+    Node tail = new Node();
+    /*
+     * @param capacity: An integer
+     */public LRUCache(int capacity) {
+        // do intialization if necessary
         this.capacity = capacity;
-        head = new Node(-1, -1);
-        tail = new Node(-1, -1);
         head.next = tail;
         tail.prev = head;
-        map = new HashMap<>();
     }
 
+    private void moveToFront(Node node) {
+        node.next.prev = node.prev;
+        node.prev.next = node.next;
+
+        addNewNode(node);
+    }
+
+    private Node removeLast() {
+        Node last = tail.prev;
+        tail.prev = last.prev;
+        last.prev.next = tail;
+        return last;
+    }
+
+    private void addNewNode(Node node) {
+        node.next = head.next;
+        head.next.prev = node;
+        head.next = node;
+        node.prev = head;
+    }
+
+    /*
+     * @param key: An integer
+     * @return: An integer
+     */
     public int get(int key) {
-        if(map.containsKey(key)) {
+        // write your code here
+        if (map.containsKey(key)) {
             Node node = map.get(key);
             moveToFront(node);
             return node.val;
@@ -41,50 +53,39 @@ class LRUCache {
         return -1;
     }
 
-    private void moveToFront(Node node) {
-        deleteNode(node);
-        node.next = head.next;
-        node.prev = head;
-        head.next = node;
-        node.next.prev = node;
-    }
-
-    private void deleteNode(Node node) {
-        if(node.prev != null)
-            node.prev.next = node.next;
-        if(node.next != null)
-            node.next.prev = node.prev;
-    }
-
-    public void put(int key, int value) {
-        if(map.containsKey(key)) {
+    /*
+     * @param key: An integer
+     * @param value: An integer
+     * @return: nothing
+     */
+    public void set(int key, int value) {
+        // write your code here
+        if (map.containsKey(key)) {
             Node node = map.get(key);
             moveToFront(node);
             node.val = value;
         } else {
-            Node node = new Node(key, value);
-            moveToFront(node);
-            map.put(key, node);
-
-            if(map.size() > capacity) {
-                Node toDel = tail.prev;
-                deleteNode(toDel);
-                map.remove(toDel.key);
+            if (map.size() == capacity) {
+                Node lastNode = removeLast();
+                map.remove(lastNode.key);
             }
+            Node newNode = new Node(key, value);
+            addNewNode(newNode);
+            map.put(key, newNode);
         }
     }
+}
 
+class Node {
+    int key;
+    int val;
+    Node prev;
+    Node next;
 
-    public static void main(String[] args) {
-        LRUCache lru = new LRUCache(2);
-        lru.put(1,0);
-        lru.put(2,2);
-        lru.get(1);
-        lru.put(3,3);
-        lru.get(2);
-        lru.put(4,4);
-        lru.get(1);
-        lru.get(3);
-        lru.get(4);
+    public Node() {}
+
+    public Node(int key, int val) {
+        this.key = key;
+        this.val = val;
     }
 }

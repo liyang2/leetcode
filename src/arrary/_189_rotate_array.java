@@ -2,18 +2,20 @@ package arrary;
 
 public class _189_rotate_array {
     public void rotate(int[] nums, int k) {
-        k = k % nums.length;
-        int[] temp = new int[k];
-        for(int i = nums.length-1; i >= nums.length-k; i--) {
-            temp[k-(nums.length-i)] = nums[i];
-        }
+        int n = nums.length;
+        k = k % n;
+        reverse(nums, 0, n - 1);
+        reverse(nums, 0, k - 1);
+        reverse(nums, k, n - 1);
+    }
 
-        for(int i = nums.length-k-1; i >= 0; i--) {
-            nums[i+k] = nums[i];
-        }
-
-        for(int i = 0; i < k; i++) {
-            nums[i] = temp[i];
+    private void reverse(int[] nums, int start, int end) {
+        while (start < end) {
+            int temp = nums[start];
+            nums[start] = nums[end];
+            nums[end] = temp;
+            start++;
+            end--;
         }
     }
 }
